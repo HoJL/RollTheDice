@@ -28,6 +28,7 @@ public class DiceManager : BehaviourBase
 
     void AutoRollTheDice()
     {
+        //Debug.Log( _diceRb[0].velocity);
         if (Time.time - _time < _autoTimeInterval)
             return;
         float randX;
