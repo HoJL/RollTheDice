@@ -2,19 +2,28 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class UIManager : MonoBehaviour
+public class UIManager : BehaviourBase
 {
 
     [SerializeField] Canvas _canvas;
-    // Start is called before the first frame update
-    void Start()
+    [SerializeField] UpgradePanel _upgradePanel;
+
+
+
+    void Init()
     {
 
     }
 
-    // Update is called once per frame
-    void Update()
-    {
 
+
+#if UNITY_EDITOR
+    protected override void OnBindSerializedField()
+    {
+        base.OnBindSerializedField();
+
+        _canvas = this.GetComponent<Canvas>();
+        _upgradePanel = this.GetComponentInChildren<UpgradePanel>();
     }
+#endif // UNITY_EDITOR
 }

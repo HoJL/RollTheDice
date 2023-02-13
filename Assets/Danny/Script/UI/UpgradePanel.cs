@@ -1,18 +1,24 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Events;
+using UnityEngine.UI;
 
-public class UpgradePanel : MonoBehaviour
+public class UpgradePanel : BehaviourBase
 {
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
+    [SerializeField] Button _btnAddDice = null;
+    [SerializeField] Button _btnMergeDice = null;
+    [SerializeField] Button _btnIncome = null;
 
-    // Update is called once per frame
-    void Update()
+
+
+
+#if UNITY_EDITOR
+    protected override void OnBindSerializedField()
     {
-        
+        base.OnBindSerializedField();
+
+
     }
+#endif // UNITY_EDITOR
 }
