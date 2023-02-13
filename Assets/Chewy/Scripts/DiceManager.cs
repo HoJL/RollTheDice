@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class DiceManager : MonoBehaviour
+public class DiceManager : BehaviourBase
 {
     [SerializeField] Rigidbody[] _diceRb;
     [SerializeField] float _explosionFoce = 1.0f;
@@ -15,10 +15,9 @@ public class DiceManager : MonoBehaviour
     
 
     float _time = 0.0f;
-    // Start is called before the first frame update
-    void Start()
+    void Init()
     {
-        
+
     }
 
     // Update is called once per frame
@@ -49,4 +48,12 @@ public class DiceManager : MonoBehaviour
         }
         _time = Time.time;
     }
+
+#if UNITY_EDITOR
+    protected override void OnBindSerializedField()
+    {
+        base.OnBindSerializedField();
+        _diceRb = this.GetComponentsInChildren<Rigidbody>();
+    }
+#endif
 }
