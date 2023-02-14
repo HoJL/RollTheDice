@@ -8,9 +8,15 @@ public class UIManager : BehaviourBase
     [SerializeField] Canvas _canvas;
     [SerializeField] UpgradePanel _upgradePanel;
 
+
     public void Init()
     {
+        _upgradePanel.Init();
+    }
 
+    public void UpgdateMoneyText()
+    {
+        _upgradePanel.UpdateMoneyText();
     }
 
 #if UNITY_EDITOR

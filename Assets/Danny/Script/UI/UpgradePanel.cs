@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.UI;
+using static Utils;
 
 public class UpgradePanel : BehaviourBase
 {
@@ -26,6 +27,8 @@ public class UpgradePanel : BehaviourBase
 
     public void Init()
     {
+        UpdateMoneyText();
+
         OnClickAddDice.RemoveAllListeners();
         OnClickAddDice.AddListener(OnPressUpgradeButton);
         OnClickMergeDice.RemoveAllListeners();
@@ -55,9 +58,11 @@ public class UpgradePanel : BehaviourBase
 
     public void UpdateMoneyText()
     {
-        _textCurrentMoney.text = $"{GameManager.Instance.Data.Money}";
-    }
+        string str = Utils.ToCurrencyString(GameManager.Instance.Data.Money);
+        _textCurrentMoney.text = $"{str}";
 
+        //_textCurrentMoney.text = "" + GameManager.Instance.Data.Money;
+    }
 
 
 #if UNITY_EDITOR

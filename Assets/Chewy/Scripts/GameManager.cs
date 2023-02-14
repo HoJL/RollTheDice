@@ -23,7 +23,7 @@ public class GameManager : BehaviourBase
         if (s_instance == null)
         {
             s_instance = this.GetComponent<GameManager>();
-
+            UI.Init();
             //_dataManager.Init();
         }
     }

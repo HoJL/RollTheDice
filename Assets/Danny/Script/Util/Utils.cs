@@ -13,7 +13,7 @@ public class Utils : MonoBehaviour
     /// <param name="number"></param>
     /// <returns></returns>
 
-    public string ToCurrencyString(double number)
+    public static string ToCurrencyString(double number)
     {
         string[] CurrencyUnits = new string[] { "", "k", "m", "b", "t" };
 
@@ -71,8 +71,10 @@ public class Utils : MonoBehaviour
             var temp = double.Parse(partsSplit[0].Replace("E", "")) * System.Math.Pow(10, remainder);
 
             //  소수 둘째자리까지만 출력한다.
-            showNumber = temp.ToString("F").Replace(".00", "");
+            showNumber = temp.ToString("F1").Replace(".0", "");
         }
+        if (quotient >= 4)
+            quotient = 4;
 
         unityString = CurrencyUnits[quotient];
 

@@ -14,7 +14,11 @@ public class DataManager : MonoBehaviour
     int _mergeDiceLv = 1;
     int _incomeLv = 1;
 
-    public double Money { get { return _addDiceLv; } }
+    public double Money
+    {
+        get { return _money; }
+        set { _money = value; GameManager.Instance.UI.UpgdateMoneyText(); }
+    }
     public int AddDiveLv { get { return _addDiceLv; } }
     public int MergeDiceLv { get { return _mergeDiceLv; } }
     public int IncomeLv { get { return _incomeLv; } }
