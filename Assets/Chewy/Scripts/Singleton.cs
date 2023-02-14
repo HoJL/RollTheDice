@@ -2,9 +2,9 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public abstract class Singleton<T> : MonoBehaviour where T : Component
+public abstract class Singleton<T> : BehaviourBase where T : Component
 {
-    private static T _instance;
+    private static T _instance = null;
     public static T Instance
     {
         get

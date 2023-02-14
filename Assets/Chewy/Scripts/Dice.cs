@@ -12,6 +12,7 @@ public class Dice : MonoBehaviour
     bool _isRolling = false;
     readonly int _numberOffset = 7;
     DiceManager.DiceGrade _grade = default;
+    Poolable poolable;
     Action<int> _doSetNumber;
     public event Action<int> DoSetNumber
     {
@@ -23,6 +24,7 @@ public class Dice : MonoBehaviour
     {
         _rb = GetComponent<Rigidbody>();
         numbers = GetComponentsInChildren<DiceNumber>();
+        poolable = GetComponent<Poolable>();
     }
 
     // Update is called once per frame

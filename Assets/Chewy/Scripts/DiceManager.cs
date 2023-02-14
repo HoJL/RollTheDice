@@ -138,6 +138,16 @@ public class DiceManager : BehaviourBase
         }
     }
 
+    void AddDice()
+    {
+
+    }
+
+    void MergeDice()
+    {
+        
+    }
+
     IEnumerator SpeedUpCo()
     {
         Time.timeScale = 2.5f;

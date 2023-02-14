@@ -2,10 +2,10 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class GameManager : BehaviourBase
+public class GameManager : Singleton<GameManager>
 {
-    public static GameManager s_instance = null;
-    public static GameManager Instance { get { return s_instance; } }
+    //public static GameManager s_instance = null;
+    //public static GameManager Instance { get { return s_instance; } }
 
     [SerializeField] DiceManager _diceManager;
 
@@ -17,17 +17,19 @@ public class GameManager : BehaviourBase
     public DataManager Data { get { return _dataManager; } }
     public PoolManager Pool { get { return _poolManager; } }
     //
-
+    public float num = 10.0f;
 
 
 
     private void Init()
     {
-        if (s_instance == null)
+        //if (s_instance == null)
         {
-            s_instance = this.GetComponent<GameManager>();
-            UI.Init();
-            Pool.Init();
+            //s_instance = this.GetComponent<GameManager>();
+            if (_uiManager != null)
+                _uiManager.Init();
+            if (_poolManager != null)
+                Pool.Init();
             //_dataManager.Init();
         }
     }
