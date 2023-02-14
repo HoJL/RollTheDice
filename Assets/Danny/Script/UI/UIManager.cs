@@ -8,14 +8,10 @@ public class UIManager : BehaviourBase
     [SerializeField] Canvas _canvas;
     [SerializeField] UpgradePanel _upgradePanel;
 
-
-
-    void Init()
+    public void Init()
     {
 
     }
-
-
 
 #if UNITY_EDITOR
     protected override void OnBindSerializedField()
