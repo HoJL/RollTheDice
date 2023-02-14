@@ -1,16 +1,19 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class DiceNumber : MonoBehaviour
+public class DiceNumber : BehaviourBase
 {
-    [SerializeField] int number;
-    bool onGround = false;
-    int _groundLayerMask;
+    [SerializeField] int _number;
+    bool _onGround = false;
+    public bool OnGround {get => _onGround;}
+    public int Number {get => _number;}
+    int _groundLayer;
     // Start is called before the first frame update
     void Start()
     {
-        _groundLayerMask = LayerMask.GetMask("Ground");
+        _groundLayer = LayerMask.NameToLayer("Ground");
     }
 
     // Update is called once per frame
@@ -21,14 +24,25 @@ public class DiceNumber : MonoBehaviour
 
     private void OnTriggerStay(Collider other) 
     {
-        if (other.gameObject.layer != _groundLayerMask) return;
-        Debug.Log(number);
-        onGround = true;
+        if (other.gameObject.layer == _groundLayer)
+        {
+            _onGround = true;
+        }
     }
 
     private void OnTriggerExit(Collider other) 
     {
-        if (other.gameObject.layer != _groundLayerMask) return;
-        onGround = false;
+        if (other.gameObject.layer == _groundLayer)
+        {
+            _onGround = false;
+        }
     }
+
+#if UNITY_EDITOR
+    protected override void OnBindSerializedField()
+    {
+        base.OnBindSerializedField();
+        _number = int.Parse(gameObject.name);
+    }
+#endif
 }
