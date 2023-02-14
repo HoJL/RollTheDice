@@ -12,8 +12,11 @@ public class GameManager : BehaviourBase
 
     [SerializeField] UIManager _uiManager;//데니
     [SerializeField] DataManager _dataManager;
+    [SerializeField] PoolManager _poolManager;
     public UIManager UI { get { return _uiManager; } }
-    public DataManager Data { get { return _dataManager; } } //
+    public DataManager Data { get { return _dataManager; } }
+    public PoolManager Pool { get { return _poolManager; } }
+    //
 
 
 
@@ -24,6 +27,7 @@ public class GameManager : BehaviourBase
         {
             s_instance = this.GetComponent<GameManager>();
             UI.Init();
+            Pool.Init();
             //_dataManager.Init();
         }
     }
@@ -47,6 +51,7 @@ public class GameManager : BehaviourBase
         _diceManager = this.GetComponentInChildren<DiceManager>();
         _uiManager = this.GetComponentInChildren<UIManager>();
         _dataManager = this.GetComponentInChildren<DataManager>();
+        _poolManager = this.GetComponentInChildren<PoolManager>();
     }
 #endif
 
