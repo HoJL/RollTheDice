@@ -53,21 +53,17 @@ public class DiceManager : BehaviourBase
     [SerializeField] MinMaxSt _minMaxTorque = new MinMaxSt(-300.0f, 300.0f);
     [SerializeField] float _autoTimeInterval = 1.0f;
     [SerializeField] float _offset = 0.5f;
+    [SerializeField] GameObject _dicePrefab;
     List<int> _diceNumList = new List<int>();
     float _time = 0.0f;
     Coroutine speedCo = null;
-    void Init()
+    public void Init()
     {
         _diceNumList.Capacity = _dice.Length;
         for(int i = 0; i < _dice.Length; i++)
         {
             _dice[i].DoSetNumber += SetNumber;
         }
-    }
-
-    void Start() 
-    {
-        Init();
     }
     // Update is called once per frame
     void Update()
@@ -138,14 +134,18 @@ public class DiceManager : BehaviourBase
         }
     }
 
-    void AddDice()
+    public void AddDice()
     {
-
+        Poolable newDice = GameManager.Instance.Pool.Pop(_dicePrefab, gameObject.transform);
+        newDice.transform.position = Vector3.zero + Vector3.up * 2;
     }
-
+    public void RemoveDice(Poolable poolable)
+    {
+        GameManager.Instance.Pool.Push(poolable);
+    }
     void MergeDice()
     {
-        
+
     }
 
     IEnumerator SpeedUpCo()

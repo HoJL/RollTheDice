@@ -8,43 +8,28 @@ public class GameManager : Singleton<GameManager>
     //public static GameManager Instance { get { return s_instance; } }
 
     [SerializeField] DiceManager _diceManager;
-
-
     [SerializeField] UIManager _uiManager;//데니
     [SerializeField] DataManager _dataManager;
     [SerializeField] PoolManager _poolManager;
     public UIManager UI { get { return _uiManager; } }
     public DataManager Data { get { return _dataManager; } }
     public PoolManager Pool { get { return _poolManager; } }
+    public DiceManager DiceManager{get => _diceManager;}
     //
-    public float num = 10.0f;
-
-
-
     private void Init()
     {
-        //if (s_instance == null)
-        {
-            //s_instance = this.GetComponent<GameManager>();
-            if (_uiManager != null)
-                _uiManager.Init();
-            if (_poolManager != null)
-                Pool.Init();
-            //_dataManager.Init();
-        }
+        if (_uiManager != null)
+            _uiManager.Init();
+        if (_poolManager != null)
+            Pool.Init();
+        if (_diceManager != null)
+            _diceManager.Init();
     }
 
     void Start()
     {
         Init();
     }
-
-    // Update is called once per frame
-    void Update()
-    {
-
-    }
-
 
 #if UNITY_EDITOR
     protected override void OnBindSerializedField()
