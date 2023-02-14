@@ -43,7 +43,8 @@ public class Dice : MonoBehaviour
     public void DoRoll(DiceManager.RollInfo rollInfo)
     {
         _isRolling = true;
-        _rb.AddForce(Vector3.up * rollInfo._upForce);
+        //_rb.AddForce(UnityEngine.Random.onUnitSphere * 3.0f, ForceMode.Impulse);
+        _rb.AddTorque(rollInfo._randomTorque, ForceMode.Impulse);
         _rb.AddExplosionForce(rollInfo._randomForce, rollInfo._pos, rollInfo._explosionRadius, rollInfo._upForce);
     }
 }
