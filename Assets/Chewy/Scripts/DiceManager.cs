@@ -54,7 +54,7 @@ public class DiceManager : BehaviourBase
             this.max = max;
         }
     }
-    
+
     [SerializeField] List<Dice> _dice = new List<Dice>();
     [SerializeField] float _explosionRadius = 1.0f;
     [SerializeField] MinMaxSt _explosionForce = new MinMaxSt(250, 320);
@@ -68,14 +68,14 @@ public class DiceManager : BehaviourBase
     [SerializeField] float _mergeTime = 1.0f;
     [SerializeField] Material[] _diceMat;
     List<int> _diceNumList = new List<int>();
-    Dictionary<int ,int> _diceNumDictionary = new Dictionary<int, int>();
+    Dictionary<int, int> _diceNumDictionary = new Dictionary<int, int>();
     float _time = 0.0f;
     Coroutine speedCo = null;
     DiceGrade _mergeableGrade;
     bool _isMergeable;
     bool _isRoll = false;
     int _rollCnt = 0;
-    public bool IsMergeable {get => _isMergeable;}
+    public bool IsMergeable { get => _isMergeable; }
     public void Init()
     {
     }
@@ -111,7 +111,7 @@ public class DiceManager : BehaviourBase
         _diceNumList.Clear();
         _diceNumDictionary.Clear();
         _rollCnt = _dice.Count;
-        for(int i = 0; i < _dice.Count; i++)
+        for (int i = 0; i < _dice.Count; i++)
         {
             RollInfo rollInfo = GetRandomRollInfo(_dice[i].transform.position);
             _dice[i].DoRoll(rollInfo);
@@ -158,19 +158,19 @@ public class DiceManager : BehaviourBase
             var abst = _diceNumList[i + 1] - _diceNumList[i];
             if (abst == 0) continue;
             if (abst != 1) return false;
-            cnt ++;
+            cnt++;
         }
         if (cnt >= 4) return true;
         return false;
     }
-    
+
     DiceCombine IsDouble()
     {
         for (int i = 0; i < _diceNumList.Count; i++)
         {
             int idx = _diceNumList[i];
             var num = _diceNumDictionary[idx];
-            if (num  == 2) return DiceCombine.Double;
+            if (num == 2) return DiceCombine.Double;
             else if (num == 3) return DiceCombine.Triple;
             else if (num >= 4) return DiceCombine.FourOfKind;
         }
@@ -197,7 +197,7 @@ public class DiceManager : BehaviourBase
         poolable.Distroy_Pool(0);
     }
 
-    void MergeDice()
+    public void MergeDice()
     {
         if (_dice.Count < 2) return;
         if (!_isMergeable) return;
@@ -213,7 +213,7 @@ public class DiceManager : BehaviourBase
         var time = 0.0f;
         var d1Pos = dice[0].transform.position;
         var d2Pos = dice[1].transform.position;
-        while(time < _mergeTime)
+        while (time < _mergeTime)
         {
             yield return null;
             dice[0].transform.position = Vector3.Lerp(d1Pos, mergePos, time / _mergeTime);
@@ -254,7 +254,7 @@ public class DiceManager : BehaviourBase
         {
             if (_dice[i].Grade != grade) continue;
             list.Add(_dice[i]);
-            if (list.Count == 2) 
+            if (list.Count == 2)
             {
                 for (int j = 0; j < list.Count; j++)
                     _dice.Remove(list[j]);

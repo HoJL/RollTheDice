@@ -76,7 +76,7 @@ public class DataManager : MonoBehaviour
         if (_money < AddDicePrice)
             return;
 
-        // add()
+        GameManager.Instance.DiceManager.AddDice(UnityEngine.Random.insideUnitSphere * 2.0f + Vector3.up * 3.0f);
         Money -= AddDicePrice;
 
         if (_priceLvCheckCount_add < _priceLvCheckCount)
@@ -93,7 +93,7 @@ public class DataManager : MonoBehaviour
         if (_money < MergeDicePrice)
             return;
 
-        // merge()
+        GameManager.Instance.DiceManager.MergeDice();
         Money -= MergeDicePrice;
 
         if (_priceLvCheckCount_merge < _priceLvCheckCount)
