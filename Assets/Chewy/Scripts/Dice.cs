@@ -37,6 +37,7 @@ public class Dice : MonoBehaviour
         if (!_isRolling) return;
         if (!_rb.IsSleeping()) return;
         var num = GetTopNumber();
+        Debug.Log($"{_meshRenderer.material},{num}");
         _doSetNumber?.Invoke(num);
         _isRolling = false;
         /*
@@ -82,8 +83,8 @@ public class Dice : MonoBehaviour
 
     public void DoRoll(DiceManager.RollInfo rollInfo)
     {
-        _isRolling = true;
         if (_rb == null) return;
+        _isRolling = true;
         //_rb.AddForce(UnityEngine.Random.onUnitSphere * 3.0f, ForceMode.Impulse);
         _rb.AddTorque(rollInfo._randomTorque, ForceMode.Impulse);
         _rb.AddExplosionForce(rollInfo._randomForce, rollInfo._pos, rollInfo._explosionRadius, rollInfo._upForce);
@@ -91,11 +92,12 @@ public class Dice : MonoBehaviour
 
     public void Init(Material mat)
     {
+        _isRolling = false;
+        _currentNumber = 0;
+        _meshRenderer = GetComponent<MeshRenderer>();
         if (_meshRenderer != null)
-        {
-            _meshRenderer = GetComponent<MeshRenderer>();
             _meshRenderer.material = mat;
-        }
+
         _skinnedRenderer = GetComponentsInChildren<SkinnedMeshRenderer>();
         if (_skinnedRenderer == null) return;
         for (int i = 0; i < _skinnedRenderer.Length; i++)

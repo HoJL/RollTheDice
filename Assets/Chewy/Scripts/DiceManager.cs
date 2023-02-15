@@ -1,3 +1,4 @@
+using System.Text;
 using System;
 using System.Drawing;
 using System.Collections;
@@ -22,6 +23,8 @@ public class DiceManager : BehaviourBase
     {
         None,
         Double,
+        Triple,
+        FourOfKind,
         Straight
     }
     public struct RollInfo
@@ -70,14 +73,11 @@ public class DiceManager : BehaviourBase
     Coroutine speedCo = null;
     DiceGrade _mergeableGrade;
     bool _isMergeable;
+    bool _isRoll = false;
+    int _rollCnt = 0;
     public bool IsMergeable {get => _isMergeable;}
     public void Init()
     {
-        _diceNumList.Capacity = _dice.Count;
-        for(int i = 0; i < _dice.Count; i++)
-        {
-            _dice[i].DoSetNumber += DoSetNumber;
-        }
     }
     // Update is called once per frame
     void Update()
@@ -106,8 +106,11 @@ public class DiceManager : BehaviourBase
         if (_dice.Count == 0) return;
         if (Time.time - _time < _autoTimeInterval)
             return;
+        //if (_isRoll) return;
+        _isRoll = true;
         _diceNumList.Clear();
         _diceNumDictionary.Clear();
+        _rollCnt = _dice.Count;
         for(int i = 0; i < _dice.Count; i++)
         {
             RollInfo rollInfo = GetRandomRollInfo(_dice[i].transform.position);
@@ -142,14 +145,12 @@ public class DiceManager : BehaviourBase
     {
         if (_diceNumList.Count < 2) return DiceCombine.None;
         if (IsStraight()) return DiceCombine.Straight;
-
-        if (IsDouble()) return DiceCombine.Double;
-
-        return DiceCombine.None;
+        return IsDouble();
     }
 
     bool IsStraight()
     {
+        int cnt = 0;
         if (_diceNumList.Count < 5) return false;
         _diceNumList.Sort();
         for (int i = 0; i < _diceNumList.Count - 1; i++)
@@ -157,18 +158,23 @@ public class DiceManager : BehaviourBase
             var abst = _diceNumList[i + 1] - _diceNumList[i];
             if (abst == 0) continue;
             if (abst != 1) return false;
+            cnt ++;
         }
-        return true;
+        if (cnt >= 4) return true;
+        return false;
     }
     
-    bool IsDouble()
+    DiceCombine IsDouble()
     {
         for (int i = 0; i < _diceNumList.Count; i++)
         {
             int idx = _diceNumList[i];
-            if (_diceNumDictionary[idx] >= 2) return true;
+            var num = _diceNumDictionary[idx];
+            if (num  == 2) return DiceCombine.Double;
+            else if (num == 3) return DiceCombine.Triple;
+            else if (num >= 4) return DiceCombine.FourOfKind;
         }
-        return false;
+        return DiceCombine.None;
     }
 
     public void AddDice(Vector3 pos, DiceGrade grade = DiceGrade.Red)
@@ -184,8 +190,10 @@ public class DiceManager : BehaviourBase
         Debug.Log(_isMergeable);
     }
 
-    public void RemoveDice(Poolable poolable)
+    public void RemoveDice(Dice dice)
     {
+        dice.DoSetNumber -= DoSetNumber;
+        Poolable poolable = dice.GetComponent<Poolable>();
         poolable.Distroy_Pool(0);
     }
 
@@ -198,23 +206,26 @@ public class DiceManager : BehaviourBase
 
     IEnumerator MergeCo()
     {
-        Dice d1 = PopDiceByGrade(_mergeableGrade);
-        Dice d2 = PopDiceByGrade(_mergeableGrade);
-        var mergePos = d1.transform.position;
+        Dice[] dice = PopTwoDiceByGrade(_mergeableGrade);
+        if (dice == null) yield break;
+        var mergePos = dice[0].transform.position;
         mergePos.y = _mergeHeight;
         var time = 0.0f;
-        var d1Pos = d1.transform.position;
-        var d2Pos = d2.transform.position;
+        var d1Pos = dice[0].transform.position;
+        var d2Pos = dice[1].transform.position;
         while(time < _mergeTime)
         {
             yield return null;
-            d1.transform.position = Vector3.Lerp(d1Pos, mergePos, time / _mergeTime);
-            d2.transform.position = Vector3.Lerp(d2Pos, mergePos, time / _mergeTime);
+            dice[0].transform.position = Vector3.Lerp(d1Pos, mergePos, time / _mergeTime);
+            dice[1].transform.position = Vector3.Lerp(d2Pos, mergePos, time / _mergeTime);
             time += Time.deltaTime;
         }
+        dice[0].GetComponent<Rigidbody>().velocity = Vector3.zero;
+        dice[1].GetComponent<Rigidbody>().velocity = Vector3.zero;
         //Merge
-        GameManager.Instance.Pool.Push(d1.GetComponent<Poolable>());
-        GameManager.Instance.Pool.Push(d2.GetComponent<Poolable>());
+        RemoveDice(dice[0]);
+        RemoveDice(dice[1]);
+        if (_isRoll) _rollCnt -= 2;
         AddDice(mergePos, (DiceGrade)(_mergeableGrade + 1));
         //effect
     }
@@ -235,24 +246,22 @@ public class DiceManager : BehaviourBase
         return false;
     }
 
-    int FindDiceIndexByGrade(DiceGrade grade)
+    Dice[] PopTwoDiceByGrade(DiceGrade grade)
     {
-        if (_dice == null || _dice.Count == 0) return -1;
+        List<Dice> list = new List<Dice>();
+        if (_dice.Count < 2) return null;
         for (int i = 0; i < _dice.Count; i++)
         {
             if (_dice[i].Grade != grade) continue;
-            return i;
+            list.Add(_dice[i]);
+            if (list.Count == 2) 
+            {
+                for (int j = 0; j < list.Count; j++)
+                    _dice.Remove(list[j]);
+                return list.ToArray();
+            }
         }
-        return -1;
-    }
-
-    Dice PopDiceByGrade(DiceGrade grade)
-    {
-        int idx = FindDiceIndexByGrade(grade);
-        if (idx < 0) return null;
-        Dice d = _dice[idx];
-        _dice.RemoveAt(idx);
-        return d;
+        return null;
     }
 
     IEnumerator SpeedUpCo()
@@ -262,7 +271,6 @@ public class DiceManager : BehaviourBase
         Time.timeScale = 1;
     }
 
-
     public void DoSetNumber(int num)
     {
         _diceNumList.Add(num);
@@ -271,12 +279,24 @@ public class DiceManager : BehaviourBase
             _diceNumDictionary[num] = 0;
         }
         _diceNumDictionary[num]++;
-        if (_diceNumList.Count == _dice.Count)
+        if (_diceNumList.Count == _rollCnt)
         {
+            _isRoll = false;
+            testPrint();
             Debug.Log(CheckScore());
         }
     }
 
+    public void testPrint()
+    {
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < _diceNumList.Count; i++)
+        {
+            sb.Append(_diceNumList[i]);
+            sb.Append(", ");
+        }
+        Debug.Log(sb.ToString());
+    }
 
 #if UNITY_EDITOR
     protected override void OnBindSerializedField()
