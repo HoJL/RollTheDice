@@ -67,6 +67,9 @@ public class DiceManager : BehaviourBase
     [SerializeField] float _mergeHeight = 4.5f;
     [SerializeField] float _mergeTime = 1.0f;
     [SerializeField] Material[] _diceMat;
+    [SerializeField] GameObject _addParticle;
+    [SerializeField] GameObject _mergeParticle;
+
     List<int> _diceNumList = new List<int>();
     Dictionary<int, int> _diceNumDictionary = new Dictionary<int, int>();
     float _time = 0.0f;
@@ -181,6 +184,7 @@ public class DiceManager : BehaviourBase
     {
         Poolable newDice = GameManager.Instance.Pool.Pop(_dicePrefab, gameObject.transform);
         newDice.transform.position = pos;
+        ShowParticle(pos, gameObject.transform);
         Dice d = newDice.GetComponent<Dice>();
         d.Grade = grade;
         d.Init(_diceMat[(int)grade - 1]);
@@ -188,6 +192,14 @@ public class DiceManager : BehaviourBase
         _dice.Add(d);
         _isMergeable = TryGetMergeableGrade(out _mergeableGrade);
         Debug.Log(_isMergeable);
+    }
+
+    public void ShowParticle(Vector3 pos, Transform parent = null)
+    {
+        Poolable particle = GameManager.Instance.Pool.Pop(_addParticle, parent);
+        particle.transform.position = pos;
+        particle.GetComponent<ParticleSystem>().Play();
+        particle.Distroy_Pool(3);
     }
 
     public void RemoveDice(Dice dice)
