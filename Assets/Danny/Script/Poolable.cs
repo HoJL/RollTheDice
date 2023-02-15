@@ -12,7 +12,7 @@ public class Poolable : MonoBehaviour
     IEnumerator Co_Distroy_Pool(float time)
     {
         yield return new WaitForSeconds(time);
-        //GameManager.Instance._pool.Push(this);
+        GameManager.Instance.Pool.Push(this);
     }
 
 }
