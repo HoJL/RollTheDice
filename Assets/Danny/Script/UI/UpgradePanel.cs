@@ -24,44 +24,73 @@ public class UpgradePanel : BehaviourBase
     public UnityEvent OnClickMergeDice => _btnMergeDice.onClick;
     public UnityEvent OnClickIncome => _btnIncome.onClick;
 
+    bool canBuyAdd;
+    bool canBuyMerge;
+    bool canBuyIncome;
 
     public void Init()
     {
         UpdateMoneyText();
+        UpdatePriceText();
 
         OnClickAddDice.RemoveAllListeners();
-        OnClickAddDice.AddListener(OnPressUpgradeButton);
+        OnClickAddDice.AddListener(OnPressAddDiceButton);
         OnClickMergeDice.RemoveAllListeners();
-        OnClickMergeDice.AddListener(OnPressUpgradeButton);
+        OnClickMergeDice.AddListener(OnPressMergeDiceButton);
         OnClickIncome.RemoveAllListeners();
-        OnClickIncome.AddListener(OnPressUpgradeButton);
+        OnClickIncome.AddListener(OnPressIncomeButton);
     }
 
-    void OnPressUpgradeButton()
+    void OnPressAddDiceButton()
     {
-        switch (_buttontype)
-        {
-            case Buttons.BtnAddDice:
-                //add
-
-                break;
-            case Buttons.BtnMergeDice:
-                //merge
-
-                break;
-            case Buttons.BtnIncome:
-                //income
-
-                break;
-        }
+        // GameManager.Instance.
+        GameManager.Instance.Data.BuyAdd();
+        UpdatePriceText();
+    }
+    void OnPressMergeDiceButton()
+    {
+        GameManager.Instance.Data.BuyMerge();
+        UpdatePriceText();
+    }
+    void OnPressIncomeButton()
+    {
+        GameManager.Instance.Data.BuyIncome();
+        UpdatePriceText();
     }
 
     public void UpdateMoneyText()
     {
         string str = Utils.ToCurrencyString(GameManager.Instance.Data.Money);
         _textCurrentMoney.text = $"{str}";
+        BuyCheck_UpgradeButton();
+    }
 
-        //_textCurrentMoney.text = "" + GameManager.Instance.Data.Money;
+    void UpdatePriceText()
+    {
+        string addPrice = Utils.ToCurrencyString(GameManager.Instance.Data.AddDicePrice);
+        _textAddDice_Price.text = $"$ {addPrice}";
+        string mergePrice = Utils.ToCurrencyString(GameManager.Instance.Data.MergeDicePrice);
+        _textMergeDice_Price.text = $"$ {mergePrice}";
+        string incomePrice = Utils.ToCurrencyString(GameManager.Instance.Data.IncomePrice);
+        _textIncome_Price.text = $"$ {incomePrice}";
+    }
+
+    void BuyCheck_UpgradeButton()
+    {
+        if (GameManager.Instance.Data.Money < GameManager.Instance.Data.AddDicePrice)
+            _btnAddDice.image.color = Color.gray;
+        else
+            _btnAddDice.image.color = Color.white;
+
+        if (GameManager.Instance.Data.Money < GameManager.Instance.Data.MergeDicePrice)
+            _btnMergeDice.image.color = Color.gray;
+        else
+            _btnMergeDice.image.color = Color.white;
+
+        if (GameManager.Instance.Data.Money < GameManager.Instance.Data.IncomePrice)
+            _btnIncome.image.color = Color.gray;
+        else
+            _btnIncome.image.color = Color.white;
     }
 
 
