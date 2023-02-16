@@ -9,13 +9,16 @@ public class Dice : MonoBehaviour
     Rigidbody _rb = null;
     DiceNumber[] numbers = null;
     int _currentNumber = 0;
+    public int CurrentNum {get => _currentNumber;}
     bool _isRolling = false;
     readonly int _numberOffset = 7;
     DiceManager.DiceGrade _grade = default;
     public DiceManager.DiceGrade Grade{get => _grade; set => _grade = value;}
     Poolable poolable;
     MeshRenderer _meshRenderer;
+    public MeshRenderer MeshRender {get => _meshRenderer;}
     SkinnedMeshRenderer [] _skinnedRenderer;
+    float _initVelY = 0;
     Action<int, Dice> _doSetNumber;
     public event Action<int, Dice> DoSetNumber
     {
@@ -35,13 +38,20 @@ public class Dice : MonoBehaviour
     void Update()
     {
         if (!_isRolling) return;
-        if (!_rb.IsSleeping()) return;
-        //if (_rb.velocity.magnitude > 0.01f) return;
+        //Debug.Log(_initVelY);
+        if ((_rb.velocity.y  < 0 && _rb.position.y <= 0.55f) || _rb.IsSleeping())
+        {
+            var num = GetTopNumber();
+            _currentNumber = num;
+            Debug.Log($"{_meshRenderer.material},{num}");
+            _doSetNumber?.Invoke(num, this);
+            _isRolling = false;
+        }
+        //if (!_rb.IsSleeping()) return;
+        //if (_rb.velocity.y > - 5.0001f) return;
+        //if (_rb.velocity.sqrMagnitude > 0.0001f) return;
         //Debug.Log(_rb.velocity.magnitude);
-        var num = GetTopNumber();
-        Debug.Log($"{_meshRenderer.material},{num}");
-        _doSetNumber?.Invoke(num, this);
-        _isRolling = false;
+       
         /*
         for (int i = 0; i < numbers.Length; i++)
         {

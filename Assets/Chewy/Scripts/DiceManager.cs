@@ -67,7 +67,12 @@ public class DiceManager : BehaviourBase
     [SerializeField] GameObject _dicePrefab;
     [SerializeField] float _mergeHeight = 4.5f;
     [SerializeField] float _mergeTime = 1.0f;
+    [Space(10)]
+    [Header("DiceMaterial")]
     [SerializeField] Material[] _diceMat;
+    [SerializeField] Material[] _diceHighlightMat;
+    [Space(10)]
+    [Header("Particle")]
     [SerializeField] GameObject _addParticle;
     [SerializeField] GameObject _mergeParticle;
     [SerializeField] ParticleSystem _straightParticle;
@@ -102,7 +107,7 @@ public class DiceManager : BehaviourBase
         {
             var rand = UnityEngine.Random.insideUnitSphere * 2.0f + Vector3.up * 3.0f;
             AddDice(rand, Quaternion.identity);
-            ShowAddParticle(rand, gameObject.transform);
+            //ShowAddParticle(rand, gameObject.transform);
         }
         if (Input.GetKeyDown(KeyCode.M))
         {
@@ -152,47 +157,12 @@ public class DiceManager : BehaviourBase
         return rollInfo;
     }
 
-    DiceCombine CheckScore()
-    {
-        if (_diceNumList.Count < 2) return DiceCombine.None;
-        if (IsStraight()) return DiceCombine.Straight;
-        return IsDouble();
-    }
-
-    bool IsStraight()
-    {
-        int cnt = 0;
-        if (_diceNumList.Count < 5) return false;
-        _diceNumList.Sort();
-        for (int i = 0; i < _diceNumList.Count - 1; i++)
-        {
-            var abst = _diceNumList[i + 1] - _diceNumList[i];
-            if (abst == 0) continue;
-            if (abst != 1) return false;
-            cnt++;
-        }
-        if (cnt >= 4) return true;
-        return false;
-    }
-
-    DiceCombine IsDouble()
-    {
-        for (int i = 0; i < _diceNumList.Count; i++)
-        {
-            int idx = _diceNumList[i];
-            var num = _diceNumDictionary[idx];
-            if (num == 2) return DiceCombine.Double;
-            else if (num == 3) return DiceCombine.Triple;
-            else if (num >= 4) return DiceCombine.FourOfKind;
-        }
-        return DiceCombine.None;
-    }
-
-    public void AddDice(Vector3 pos, Quaternion rot, DiceGrade grade = DiceGrade.Red)
+    public void AddDice(Vector3 pos, Quaternion rot, DiceGrade grade = DiceGrade.Red, bool isMerge = false)
     {
         Poolable newDice = GameManager.Instance.Pool.Pop(_dicePrefab, gameObject.transform);
         newDice.transform.position = pos;
-        //ShowParticle(pos, gameObject.transform);
+        if (!isMerge) ShowAddParticle(pos, gameObject.transform);
+        else ShowMergeParticle(pos, gameObject.transform);
         Dice d = newDice.GetComponent<Dice>();
         d.Grade = grade;
         d.Init(_diceMat[(int)grade - 1]);
@@ -302,6 +272,55 @@ public class DiceManager : BehaviourBase
         Time.timeScale = 1;
     }
 
+    DiceCombine CheckScore(out int highNum)
+    {
+        highNum = 0;
+        if (_diceNumList.Count < 2) return DiceCombine.None;
+        if (IsStraight()) return DiceCombine.Straight;
+        _diceNumList.Reverse();
+        return IsDouble(out highNum);
+    }
+
+    bool IsStraight()
+    {
+        int cnt = 0;
+        if (_diceNumList.Count < 5) return false;
+        _diceNumList.Sort();
+        for (int i = 0; i < _diceNumList.Count - 1; i++)
+        {
+            var abst = _diceNumList[i + 1] - _diceNumList[i];
+            if (abst == 0) continue;
+            if (abst != 1) return false;
+            cnt++;
+        }
+        if (cnt >= 4) return true;
+        return false;
+    }
+
+    DiceCombine IsFourKind(out int highNum)
+    {
+        return FindCombine(out highNum, 4);
+    }
+
+    DiceCombine IsDouble(out int highNum)
+    {
+        return FindCombine(out highNum, 2);
+    }
+
+    DiceCombine FindCombine(out int highNum, int cnt)
+    {
+        for (int i = 0; i < _diceNumList.Count; i++)
+        {
+            int idx = _diceNumList[i];
+            var num = _diceNumDictionary[idx];
+            if (num != cnt) continue;
+            highNum = idx;
+            return DiceCombine.FourOfKind;
+        }
+        highNum = 0;
+        return DiceCombine.None;
+    }
+
     public void DoSetNumber(int num, Dice dice)
     {
         _diceNumList.Add(num);
@@ -315,25 +334,51 @@ public class DiceManager : BehaviourBase
         {
             _isRoll = false;
             testPrint();
-            DiceCombine dc = CheckScore();
+            int highNum;
+            DiceCombine dc = CheckScore(out highNum);
             Debug.Log(dc);
-
-            switch(dc)
-            {
-                case DiceCombine.Double:
-                    _doubleParticle.Play();
-                    break;
-                case DiceCombine.Triple:
-                    _tripleParticle.Play();
-                    break;
-                case DiceCombine.FourOfKind:
-                    _fourkindParticle.Play();
-                    break;
-                case DiceCombine.Straight:
-                    _straightParticle.Play();
-                    break;
-            }
+            ShowCombineParticle(dc, highNum);
         }
+    }
+
+    void ShowCombineParticle(DiceCombine dc, int highNum)
+    {
+        switch(dc)
+        {
+            case DiceCombine.Double:
+                _doubleParticle.Play();
+                break;
+            case DiceCombine.Triple:
+                _tripleParticle.Play();
+                break;
+            case DiceCombine.FourOfKind:
+                _fourkindParticle.Play();
+                break;
+            case DiceCombine.Straight:
+                _straightParticle.Play();
+                break;
+        }
+        if (highNum <= 0) return;
+        Debug.Log(highNum);
+        for (int i = 0; i < _rollCnt; i++)
+        {
+            if (_dice[i].CurrentNum != highNum) continue;
+            StartCoroutine(ShowGlowDiceCo(_dice[i]));
+        }
+    }
+
+    IEnumerator ShowGlowDiceCo(Dice dice)
+    {
+        float time = 0.0f;
+        int matIdx = (int)dice.Grade - 1;
+        if (matIdx < 0) throw new Exception("Grade is none");
+        dice.MeshRender.material = _diceHighlightMat[matIdx];
+        while(time < 0.5f)
+        {
+            yield return null;
+            time += Time.deltaTime;
+        }
+        dice.MeshRender.material = _diceMat[matIdx];
     }
 
     void ShowMoneyText(int num, Dice dice)
