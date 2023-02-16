@@ -32,7 +32,7 @@ public class UpgradePanel : BehaviourBase
     {
         UpdateMoneyText();
         UpdatePriceText();
-
+        Check_Mergeable();
         OnClickAddDice.RemoveAllListeners();
         OnClickAddDice.AddListener(OnPressAddDiceButton);
         OnClickMergeDice.RemoveAllListeners();
@@ -46,11 +46,13 @@ public class UpgradePanel : BehaviourBase
         // GameManager.Instance.
         GameManager.Instance.Data.BuyAdd();
         UpdatePriceText();
+        Check_Mergeable();
     }
     void OnPressMergeDiceButton()
     {
         GameManager.Instance.Data.BuyMerge();
         UpdatePriceText();
+        Check_Mergeable();
     }
     void OnPressIncomeButton()
     {
@@ -73,6 +75,12 @@ public class UpgradePanel : BehaviourBase
         _textMergeDice_Price.text = $"$ {mergePrice}";
         string incomePrice = Utils.ToCurrencyString(GameManager.Instance.Data.IncomePrice);
         _textIncome_Price.text = $"$ {incomePrice}";
+    }
+
+    void Check_Mergeable()
+    {
+        bool mergerble = GameManager.Instance.DiceManager.IsMergeable;
+        _btnMergeDice.gameObject.SetActive(mergerble);
     }
 
     void BuyCheck_UpgradeButton()

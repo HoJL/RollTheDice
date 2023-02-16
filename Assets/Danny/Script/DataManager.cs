@@ -31,6 +31,11 @@ public class DataManager : MonoBehaviour
     int _priceLv_merge = 0;
     int _priceLv_income = 0;
 
+    public int IncomeLv
+    {
+        get { return _incomeLv; }
+    }
+
     public double Money
     {
         get { return _money; }
