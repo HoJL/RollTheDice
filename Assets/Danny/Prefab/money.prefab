@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 8217644692463915779}
   - component: {fileID: 4240313540418705192}
   - component: {fileID: -3710762967412144857}
+  - component: {fileID: 3798700251203328715}
   m_Layer: 5
   m_Name: money
   m_TagString: Untagged
@@ -60,7 +61,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_RaycastTarget: 1
+  m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
@@ -88,3 +89,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 71040a1e331ca4f959630d290e0b50b3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &3798700251203328715
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8801157978193564327}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c507b3ecae8bd48cb997078749669b30, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _startSpeed: 0.25
+  _endSpeed: 0.35

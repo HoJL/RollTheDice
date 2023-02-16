@@ -83,6 +83,7 @@ public class DataManager : MonoBehaviour
 
         GameManager.Instance.DiceManager.AddDice(UnityEngine.Random.insideUnitSphere * 2.0f + Vector3.up * 3.0f, Quaternion.identity);
         Money -= AddDicePrice;
+        GameManager.Instance.UI.UpgdateMoneyText();
 
         if (_priceLvCheckCount_add < _priceLvCheckCount)
             _priceLvCheckCount_add++;
