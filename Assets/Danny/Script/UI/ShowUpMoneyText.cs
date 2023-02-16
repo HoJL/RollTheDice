@@ -7,7 +7,6 @@ using static Utils;
 public class ShowUpMoneyText : MonoBehaviour
 {
     [SerializeField] Text _moneyText;
-
     public void SetText(double money)
     {
         string str = Utils.ToCurrencyString(money);
