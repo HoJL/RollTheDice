@@ -25,7 +25,8 @@ public class DiceManager : BehaviourBase
         Double,
         Triple,
         Straight,
-        FourOfKind
+        FourOfKind,
+        Penta
     }
     public struct RollInfo
     {
@@ -79,6 +80,9 @@ public class DiceManager : BehaviourBase
     [SerializeField] ParticleSystem _doubleParticle;
     [SerializeField] ParticleSystem _tripleParticle;
     [SerializeField] ParticleSystem _fourkindParticle;
+    [SerializeField] ParticleSystem _pentaParticle;
+
+    [Space(20)]
     [SerializeField] GameObject _moneyText;
     [SerializeField] Vector3 _moneyTextOffset = Vector3.zero;
     List<int> _diceNumList = new List<int>();
@@ -169,6 +173,7 @@ public class DiceManager : BehaviourBase
         d.DoSetNumber += DoSetNumber;
         _dice.Add(d);
         _isMergeable = TryGetMergeableGrade(out _mergeableGrade);
+        GameManager.Instance.UI.Check_Mergeable();
         Debug.Log(_isMergeable);
     }
 
@@ -276,49 +281,72 @@ public class DiceManager : BehaviourBase
     {
         highNum = 0;
         if (_diceNumList.Count < 2) return DiceCombine.None;
-        if (IsStraight()) return DiceCombine.Straight;
-        _diceNumList.Reverse();
-        return IsDouble(out highNum);
-    }
-
-    bool IsStraight()
-    {
-        int cnt = 0;
-        if (_diceNumList.Count < 5) return false;
         _diceNumList.Sort();
-        for (int i = 0; i < _diceNumList.Count - 1; i++)
-        {
-            var abst = _diceNumList[i + 1] - _diceNumList[i];
-            if (abst == 0) continue;
-            if (abst != 1) return false;
-            cnt++;
-        }
-        if (cnt >= 4) return true;
-        return false;
+        _diceNumList.Reverse();
+        if (IsPenta(out highNum)) return DiceCombine.Penta;
+        else if (IsFourKind(out highNum)) return DiceCombine.FourOfKind;
+        else if (IsStraight(out highNum)) return DiceCombine.Straight;
+        else if (IsTriple(out highNum)) return DiceCombine.Triple;
+        else if (IsDouble(out highNum)) return DiceCombine.Double;
+
+        return DiceCombine.None;
     }
 
-    DiceCombine IsFourKind(out int highNum)
+    bool IsStraight(out int highNum)
+    {
+        highNum = 0;
+        if (_diceNumList.Count < 5) return false;
+        if (StraightKind(1, 5)) 
+        {
+            highNum = 5;
+            return true;
+        }
+        highNum = 6;
+        return StraightKind(2, 6);
+    }
+
+    bool StraightKind(int start, int end)
+    {
+        for (int i = 1; i <= 5; i++)
+        {
+            if (!_diceNumDictionary.ContainsKey(i)) return false;
+        }
+        return true;
+    }
+    bool IsPenta(out int highNum)
+    {
+        return FindCombine(out highNum, 5);
+    }
+
+    bool IsFourKind(out int highNum)
     {
         return FindCombine(out highNum, 4);
     }
 
-    DiceCombine IsDouble(out int highNum)
+    bool IsTriple(out int highNum)
+    {
+        return FindCombine(out highNum, 3);
+    }
+
+    bool IsDouble(out int highNum)
     {
         return FindCombine(out highNum, 2);
     }
 
-    DiceCombine FindCombine(out int highNum, int cnt)
+    bool FindCombine(out int highNum, int cnt)
     {
+        highNum = 0;
+        if (_diceNumList.Count < cnt) return false;
         for (int i = 0; i < _diceNumList.Count; i++)
         {
             int idx = _diceNumList[i];
             var num = _diceNumDictionary[idx];
             if (num != cnt) continue;
             highNum = idx;
-            return DiceCombine.FourOfKind;
+            return true;
         }
         highNum = 0;
-        return DiceCombine.None;
+        return false;
     }
 
     public void DoSetNumber(int num, Dice dice)
@@ -357,13 +385,26 @@ public class DiceManager : BehaviourBase
             case DiceCombine.Straight:
                 _straightParticle.Play();
                 break;
+            case DiceCombine.Penta:
+                _pentaParticle.Play();
+                break;
         }
         if (highNum <= 0) return;
-        Debug.Log(highNum);
-        for (int i = 0; i < _rollCnt; i++)
+        if (dc != DiceCombine.Straight)
         {
-            if (_dice[i].CurrentNum != highNum) continue;
-            StartCoroutine(ShowGlowDiceCo(_dice[i]));
+            for (int i = 0; i < _rollCnt; i++)
+            {
+                if (_dice[i].CurrentNum != highNum) continue;
+                StartCoroutine(ShowGlowDiceCo(_dice[i]));
+            }
+        }
+        else
+        {
+            for (int i = highNum; i >= highNum - 4; i--)
+            {
+                var dice = _dice.Find(d => d.CurrentNum == i);
+                StartCoroutine(ShowGlowDiceCo(dice));
+            }
         }
     }
 
