@@ -74,6 +74,8 @@ public class DiceManager : BehaviourBase
     [SerializeField] ParticleSystem _doubleParticle;
     [SerializeField] ParticleSystem _tripleParticle;
     [SerializeField] ParticleSystem _fourkindParticle;
+    [SerializeField] GameObject _moneyText;
+    [SerializeField] Vector3 _moneyTextOffset = Vector3.zero;
     List<int> _diceNumList = new List<int>();
     Dictionary<int, int> _diceNumDictionary = new Dictionary<int, int>();
     float _time = 0.0f;
@@ -98,9 +100,9 @@ public class DiceManager : BehaviourBase
         }
         if (Input.GetKeyDown(KeyCode.A))
         {
-            AddDice(UnityEngine.Random.insideUnitSphere * 2.0f + Vector3.up * 3.0f, 
-                    Quaternion.identity);
-            ShowAddParticle(UnityEngine.Random.insideUnitSphere * 2.0f + Vector3.up * 3.0f, gameObject.transform);
+            var rand = UnityEngine.Random.insideUnitSphere * 2.0f + Vector3.up * 3.0f;
+            AddDice(rand, Quaternion.identity);
+            ShowAddParticle(rand, gameObject.transform);
         }
         if (Input.GetKeyDown(KeyCode.M))
         {
@@ -300,9 +302,10 @@ public class DiceManager : BehaviourBase
         Time.timeScale = 1;
     }
 
-    public void DoSetNumber(int num)
+    public void DoSetNumber(int num, Dice dice)
     {
         _diceNumList.Add(num);
+        ShowMoneyText(num, dice);
         if (!_diceNumDictionary.ContainsKey(num))
         {
             _diceNumDictionary[num] = 0;
@@ -331,6 +334,22 @@ public class DiceManager : BehaviourBase
                     break;
             }
         }
+    }
+
+    void ShowMoneyText(int num, Dice dice)
+    {
+        Poolable pool = GameManager.Instance.Pool.Pop(_moneyText, gameObject.transform);
+        var mt = pool.GetComponent<ShowUpMoneyText>();
+        var moneyPos = dice.transform.position;
+        moneyPos.x += _moneyTextOffset.x;
+        moneyPos.y += _moneyTextOffset.y;
+        moneyPos.z += _moneyTextOffset.z;
+        mt.transform.position = moneyPos;
+        //(주사위 숫자 * 3^(등급-1)) * (1 + 0.1 * 인컴레벨)
+        var money = num * Mathf.Pow(3, ((int)dice.Grade - 1)) * (1 + 0.1f * GameManager.Instance.Data.IncomeLv);
+        GameManager.Instance.Data.Money += money;
+        mt.SetText(money);
+        pool.Distroy_Pool(1.5f);
     }
 
     public void testPrint()

@@ -16,8 +16,8 @@ public class Dice : MonoBehaviour
     Poolable poolable;
     MeshRenderer _meshRenderer;
     SkinnedMeshRenderer [] _skinnedRenderer;
-    Action<int> _doSetNumber;
-    public event Action<int> DoSetNumber
+    Action<int, Dice> _doSetNumber;
+    public event Action<int, Dice> DoSetNumber
     {
         add => _doSetNumber += value;
         remove => _doSetNumber -= value;
@@ -38,7 +38,7 @@ public class Dice : MonoBehaviour
         if (!_rb.IsSleeping()) return;
         var num = GetTopNumber();
         Debug.Log($"{_meshRenderer.material},{num}");
-        _doSetNumber?.Invoke(num);
+        _doSetNumber?.Invoke(num, this);
         _isRolling = false;
         /*
         for (int i = 0; i < numbers.Length; i++)
