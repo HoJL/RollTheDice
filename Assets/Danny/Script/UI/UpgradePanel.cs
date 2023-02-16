@@ -47,6 +47,7 @@ public class UpgradePanel : BehaviourBase
         GameManager.Instance.Data.BuyAdd();
         UpdatePriceText();
         Check_Mergeable();
+        Check_Addable();
     }
     void OnPressMergeDiceButton()
     {
@@ -81,6 +82,21 @@ public class UpgradePanel : BehaviourBase
     {
         bool mergerble = GameManager.Instance.DiceManager.IsMergeable;
         _btnMergeDice.gameObject.SetActive(mergerble);
+        Check_Addable();
+    }
+
+    void Check_Addable()
+    {
+        bool addable = GameManager.Instance.DiceManager.IsAddable;
+        _btnAddDice.interactable = addable;
+        if (addable)
+        {
+            UpdatePriceText();
+        }
+        else
+        {
+            _textAddDice_Price.text = "MAX";
+        }
     }
 
     void BuyCheck_UpgradeButton()

@@ -26,7 +26,14 @@ public class DiceManager : BehaviourBase
         Triple,
         Straight,
         FourOfKind,
-        Penta
+        Penta,
+        Hexa,
+        Hepta,
+        Octa,
+        Novem,
+        Deca,
+        Undeca,
+        DoDeca,
     }
     public struct RollInfo
     {
@@ -81,7 +88,8 @@ public class DiceManager : BehaviourBase
     [SerializeField] ParticleSystem _tripleParticle;
     [SerializeField] ParticleSystem _fourkindParticle;
     [SerializeField] ParticleSystem _pentaParticle;
-
+    [SerializeField] GameObject _hightlightParticle;
+    [SerializeField] int _maxDiceCount = 12;
     [Space(20)]
     [SerializeField] GameObject _moneyText;
     [SerializeField] Vector3 _moneyTextOffset = Vector3.zero;
@@ -93,6 +101,9 @@ public class DiceManager : BehaviourBase
     bool _isMergeable;
     bool _isRoll = false;
     int _rollCnt = 0;
+    int _currentDiceCount = 0;
+    bool _isAddable = true;
+    public bool IsAddable {get => _isAddable;}
     public bool IsMergeable { get => _isMergeable; }
     public void Init()
     {
@@ -163,6 +174,7 @@ public class DiceManager : BehaviourBase
 
     public void AddDice(Vector3 pos, Quaternion rot, DiceGrade grade = DiceGrade.Red, bool isMerge = false)
     {
+        if (!_isAddable) return;
         Poolable newDice = GameManager.Instance.Pool.Pop(_dicePrefab, gameObject.transform);
         newDice.transform.position = pos;
         if (!isMerge) ShowAddParticle(pos, gameObject.transform);
@@ -172,9 +184,9 @@ public class DiceManager : BehaviourBase
         d.Init(_diceMat[(int)grade - 1]);
         d.DoSetNumber += DoSetNumber;
         _dice.Add(d);
+        if (_dice.Count == _maxDiceCount) _isAddable = false;
         _isMergeable = TryGetMergeableGrade(out _mergeableGrade);
         GameManager.Instance.UI.Check_Mergeable();
-        Debug.Log(_isMergeable);
     }
 
     public void ShowAddParticle(Vector3 pos, Transform parent = null)
@@ -414,12 +426,21 @@ public class DiceManager : BehaviourBase
         int matIdx = (int)dice.Grade - 1;
         if (matIdx < 0) throw new Exception("Grade is none");
         dice.MeshRender.material = _diceHighlightMat[matIdx];
+        ShowHightlightParticle(dice.transform.position);
         while(time < 0.5f)
         {
             yield return null;
             time += Time.deltaTime;
         }
         dice.MeshRender.material = _diceMat[matIdx];
+    }
+
+    void ShowHightlightParticle(Vector3 pos)
+    {
+        Poolable pool = GameManager.Instance.Pool.Pop(_hightlightParticle, gameObject.transform);
+        pool.transform.position = pos;
+        pool.GetComponent<ParticleSystem>().Play();
+        pool.Distroy_Pool(1);
     }
 
     void ShowMoneyText(int num, Dice dice)
