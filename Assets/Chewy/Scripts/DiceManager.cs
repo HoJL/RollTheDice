@@ -56,6 +56,7 @@ public class DiceManager : BehaviourBase
     }
 
     [SerializeField] List<Dice> _dice = new List<Dice>();
+    [SerializeField] int _diceMax = 7;
     [SerializeField] float _explosionRadius = 1.0f;
     [SerializeField] MinMaxSt _explosionForce = new MinMaxSt(250, 320);
     [SerializeField] MinMaxSt _minMaxRandPos = new MinMaxSt(-1.0f, 1.0f);
@@ -94,7 +95,9 @@ public class DiceManager : BehaviourBase
         }
         if (Input.GetKeyDown(KeyCode.A))
         {
-            AddDice(UnityEngine.Random.insideUnitSphere * 2.0f + Vector3.up * 3.0f);
+            AddDice(UnityEngine.Random.insideUnitSphere * 2.0f + Vector3.up * 3.0f, 
+                    Quaternion.identity);
+            ShowAddParticle(UnityEngine.Random.insideUnitSphere * 2.0f + Vector3.up * 3.0f, gameObject.transform);
         }
         if (Input.GetKeyDown(KeyCode.M))
         {
@@ -180,11 +183,11 @@ public class DiceManager : BehaviourBase
         return DiceCombine.None;
     }
 
-    public void AddDice(Vector3 pos, DiceGrade grade = DiceGrade.Red)
+    public void AddDice(Vector3 pos, Quaternion rot, DiceGrade grade = DiceGrade.Red)
     {
         Poolable newDice = GameManager.Instance.Pool.Pop(_dicePrefab, gameObject.transform);
         newDice.transform.position = pos;
-        ShowParticle(pos, gameObject.transform);
+        //ShowParticle(pos, gameObject.transform);
         Dice d = newDice.GetComponent<Dice>();
         d.Grade = grade;
         d.Init(_diceMat[(int)grade - 1]);
@@ -194,12 +197,22 @@ public class DiceManager : BehaviourBase
         Debug.Log(_isMergeable);
     }
 
-    public void ShowParticle(Vector3 pos, Transform parent = null)
+    public void ShowAddParticle(Vector3 pos, Transform parent = null)
     {
-        Poolable particle = GameManager.Instance.Pool.Pop(_addParticle, parent);
-        particle.transform.position = pos;
-        particle.GetComponent<ParticleSystem>().Play();
-        particle.Distroy_Pool(3);
+        ShowParticle(_addParticle, pos, parent);
+    }
+
+    public void ShowMergeParticle(Vector3 pos, Transform parent = null)
+    {
+        ShowParticle(_mergeParticle, pos, parent);
+    }
+
+    void ShowParticle(GameObject particle, Vector3 pos, Transform parent = null)
+    {
+        Poolable pool = GameManager.Instance.Pool.Pop(particle, parent);
+        pool.transform.position = pos;
+        pool.GetComponent<ParticleSystem>().Play();
+        pool.Distroy_Pool(3);
     }
 
     public void RemoveDice(Dice dice)
@@ -238,7 +251,8 @@ public class DiceManager : BehaviourBase
         RemoveDice(dice[0]);
         RemoveDice(dice[1]);
         if (_isRoll) _rollCnt -= 2;
-        AddDice(mergePos, (DiceGrade)(_mergeableGrade + 1));
+        AddDice(mergePos, Quaternion.identity, (DiceGrade)(_mergeableGrade + 1));
+        ShowMergeParticle(mergePos, gameObject.transform);
         //effect
     }
 
