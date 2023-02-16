@@ -77,7 +77,7 @@ public class UpgradePanel : BehaviourBase
         _textIncome_Price.text = $"$ {incomePrice}";
     }
 
-    void Check_Mergeable()
+    public void Check_Mergeable()
     {
         bool mergerble = GameManager.Instance.DiceManager.IsMergeable;
         _btnMergeDice.gameObject.SetActive(mergerble);

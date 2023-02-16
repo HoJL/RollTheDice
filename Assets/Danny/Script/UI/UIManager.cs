@@ -19,6 +19,11 @@ public class UIManager : BehaviourBase
         _upgradePanel.UpdateMoneyText();
     }
 
+    public void Check_Mergeable()
+    {
+        _upgradePanel.Check_Mergeable();
+    }
+
 #if UNITY_EDITOR
     protected override void OnBindSerializedField()
     {

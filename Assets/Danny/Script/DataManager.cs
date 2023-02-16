@@ -19,7 +19,7 @@ public class DataManager : MonoBehaviour
     double _incomeBacePrice = 100.0f;
 
     float _Upgrade_Defult_Price = 150f;
-    float _Upgrade_Defult_Price_Add = 10f;
+    float _Upgrade_Defult_Price_Add = 5f;
     float _Upgrade_Price_Magnification = 1.5f;
 
     int _priceLvCheckCount = 10;
