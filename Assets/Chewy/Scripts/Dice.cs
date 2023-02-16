@@ -36,6 +36,8 @@ public class Dice : MonoBehaviour
     {
         if (!_isRolling) return;
         if (!_rb.IsSleeping()) return;
+        //if (_rb.velocity.magnitude > 0.01f) return;
+        //Debug.Log(_rb.velocity.magnitude);
         var num = GetTopNumber();
         Debug.Log($"{_meshRenderer.material},{num}");
         _doSetNumber?.Invoke(num, this);

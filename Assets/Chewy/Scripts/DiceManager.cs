@@ -24,8 +24,8 @@ public class DiceManager : BehaviourBase
         None,
         Double,
         Triple,
-        FourOfKind,
-        Straight
+        Straight,
+        FourOfKind
     }
     public struct RollInfo
     {
@@ -346,7 +346,7 @@ public class DiceManager : BehaviourBase
         moneyPos.z += _moneyTextOffset.z;
         mt.transform.position = moneyPos;
         //(주사위 숫자 * 3^(등급-1)) * (1 + 0.1 * 인컴레벨)
-        var money = num * Mathf.Pow(3, ((int)dice.Grade - 1)) * (1 + 0.1f * GameManager.Instance.Data.IncomeLv);
+        var money = num * Mathf.Pow(3, ((int)dice.Grade - 1)) * (1 + GameManager.Instance.Data.IncomeLv);
         GameManager.Instance.Data.Money += money;
         mt.SetText(money);
         pool.Distroy_Pool(1.5f);
