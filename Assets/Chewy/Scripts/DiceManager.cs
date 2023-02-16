@@ -70,7 +70,10 @@ public class DiceManager : BehaviourBase
     [SerializeField] Material[] _diceMat;
     [SerializeField] GameObject _addParticle;
     [SerializeField] GameObject _mergeParticle;
-
+    [SerializeField] ParticleSystem _straightParticle;
+    [SerializeField] ParticleSystem _doubleParticle;
+    [SerializeField] ParticleSystem _tripleParticle;
+    [SerializeField] ParticleSystem _fourkindParticle;
     List<int> _diceNumList = new List<int>();
     Dictionary<int, int> _diceNumDictionary = new Dictionary<int, int>();
     float _time = 0.0f;
@@ -309,7 +312,24 @@ public class DiceManager : BehaviourBase
         {
             _isRoll = false;
             testPrint();
-            Debug.Log(CheckScore());
+            DiceCombine dc = CheckScore();
+            Debug.Log(dc);
+
+            switch(dc)
+            {
+                case DiceCombine.Double:
+                    _doubleParticle.Play();
+                    break;
+                case DiceCombine.Triple:
+                    _tripleParticle.Play();
+                    break;
+                case DiceCombine.FourOfKind:
+                    _fourkindParticle.Play();
+                    break;
+                case DiceCombine.Straight:
+                    _straightParticle.Play();
+                    break;
+            }
         }
     }
 
