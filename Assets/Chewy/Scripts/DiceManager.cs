@@ -69,6 +69,7 @@ public class DiceManager : BehaviourBase
     [SerializeField] int _maxDiceCount = 12;
     [SerializeField] GameObject _moneyText;
     [SerializeField] Vector3 _moneyTextOffset = Vector3.zero;
+    [SerializeField] Vector3 _randomPosRange;
     List<int> _diceNumList = new List<int>();
     Dictionary<int, int> _diceNumDictionary = new Dictionary<int, int>();
     float _time = 0.0f;
@@ -76,8 +77,10 @@ public class DiceManager : BehaviourBase
     DiceGrade _mergeableGrade;
     Scoring _scoring;
     DiceParticle _diceParticle;
+
     bool _isMergeable;
     bool _isRoll = false;
+    float _randomPosXFactor;
     int _rollCnt = 0;
     int _currentDiceCount = 0;
     bool _isAddable = true;
@@ -100,8 +103,7 @@ public class DiceManager : BehaviourBase
         }
         if (Input.GetKeyDown(KeyCode.A))
         {
-            var rand = UnityEngine.Random.insideUnitSphere * 2.0f + Vector3.up * 3.0f;
-            AddDice(rand, Quaternion.identity);
+            AddDice();
             //ShowAddParticle(rand, gameObject.transform);
         }
         if (Input.GetKeyDown(KeyCode.M))
@@ -156,6 +158,7 @@ public class DiceManager : BehaviourBase
         if (!_isAddable) return;
         Poolable newDice = GameManager.Instance.Pool.Pop(_dicePrefab, gameObject.transform);
         newDice.transform.position = pos;
+        newDice.transform.rotation = rot;
         if (!isMerge) _diceParticle.ShowAddParticle(pos, gameObject.transform);
         else _diceParticle.ShowMergeParticle(pos, gameObject.transform);
         Dice d = newDice.GetComponent<Dice>();
@@ -166,6 +169,20 @@ public class DiceManager : BehaviourBase
         if (_dice.Count == _maxDiceCount) _isAddable = false;
         _isMergeable = TryGetMergeableGrade(out _mergeableGrade);
         GameManager.Instance.UI.Check_Mergeable();
+    }
+
+    public void AddDice(DiceGrade grade = DiceGrade.Red, bool isMerge = false)
+    {
+        var ranPos = RandomRangeVector(_randomPosRange);
+        AddDice(ranPos, Quaternion.Euler(UnityEngine.Random.insideUnitCircle * 180.0f), grade, isMerge);
+    }
+
+    Vector3 RandomRangeVector(Vector3 range)
+    {
+        float rndX = UnityEngine.Random.Range(-range.x, range.x);
+        float rndY = 3.0f;
+        float rndZ = UnityEngine.Random.Range(-range.z, range.z);
+        return new Vector3(rndX, rndY, rndZ);
     }
 
     public void RemoveDice(Dice dice)
@@ -203,10 +220,10 @@ public class DiceManager : BehaviourBase
         //Merge
         RemoveDice(dice[0]);
         RemoveDice(dice[1]);
+        _isAddable = true;
         if (_isRoll) _rollCnt -= 2;
         AddDice(mergePos, Quaternion.identity, (DiceGrade)(_mergeableGrade + 1));
         _diceParticle.ShowMergeParticle(mergePos, gameObject.transform);
-        //effect
     }
 
     bool TryGetMergeableGrade(out DiceGrade grade)
