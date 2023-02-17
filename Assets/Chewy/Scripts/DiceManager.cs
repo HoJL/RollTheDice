@@ -5,6 +5,8 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
+
+[RequireComponent(typeof(Scoring), typeof(DiceParticle))]
 public class DiceManager : BehaviourBase
 {
     public enum DiceGrade
@@ -19,22 +21,6 @@ public class DiceManager : BehaviourBase
         Violet
     }
 
-    public enum DiceCombine
-    {
-        None,
-        Double,
-        Triple,
-        Straight,
-        FourOfKind,
-        Penta,
-        Hexa,
-        Hepta,
-        Octa,
-        Novem,
-        Deca,
-        Undeca,
-        DoDeca,
-    }
     public struct RollInfo
     {
         public float _randomForce;
@@ -78,19 +64,9 @@ public class DiceManager : BehaviourBase
     [Space(10)]
     [Header("DiceMaterial")]
     [SerializeField] Material[] _diceMat;
-    [SerializeField] Material[] _diceHighlightMat;
-    [Space(10)]
-    [Header("Particle")]
-    [SerializeField] GameObject _addParticle;
-    [SerializeField] GameObject _mergeParticle;
-    [SerializeField] ParticleSystem _straightParticle;
-    [SerializeField] ParticleSystem _doubleParticle;
-    [SerializeField] ParticleSystem _tripleParticle;
-    [SerializeField] ParticleSystem _fourkindParticle;
-    [SerializeField] ParticleSystem _pentaParticle;
-    [SerializeField] GameObject _hightlightParticle;
-    [SerializeField] int _maxDiceCount = 12;
+
     [Space(20)]
+    [SerializeField] int _maxDiceCount = 12;
     [SerializeField] GameObject _moneyText;
     [SerializeField] Vector3 _moneyTextOffset = Vector3.zero;
     List<int> _diceNumList = new List<int>();
@@ -98,6 +74,8 @@ public class DiceManager : BehaviourBase
     float _time = 0.0f;
     Coroutine speedCo = null;
     DiceGrade _mergeableGrade;
+    Scoring _scoring;
+    DiceParticle _diceParticle;
     bool _isMergeable;
     bool _isRoll = false;
     int _rollCnt = 0;
@@ -107,6 +85,8 @@ public class DiceManager : BehaviourBase
     public bool IsMergeable { get => _isMergeable; }
     public void Init()
     {
+        _scoring = GetComponent<Scoring>();
+        _diceParticle = GetComponent<DiceParticle>();
     }
     // Update is called once per frame
     void Update()
@@ -153,15 +133,14 @@ public class DiceManager : BehaviourBase
     RollInfo GetRandomRollInfo(Vector3 orginPos)
     {
         var randX = UnityEngine.Random.Range(_minMaxRandPos.min, _minMaxRandPos.max);
-        //var randY = UnityEngine.Random.Range(_minMaxRandPos.min, _minMaxRandPos.max);
         var randZ = UnityEngine.Random.Range(_minMaxRandPos.min, _minMaxRandPos.max);
         var randUpward = UnityEngine.Random.Range(_minMaxUpward.min, _minMaxUpward.max);
         var force = UnityEngine.Random.Range(_explosionForce.min, _explosionForce.max);
         var tX = UnityEngine.Random.Range(_minMaxTorque.min, _minMaxTorque.max);
         var tY = UnityEngine.Random.Range(_minMaxTorque.min, _minMaxTorque.max);
         var tZ = UnityEngine.Random.Range(_minMaxTorque.min, _minMaxTorque.max);
-
         var pos = orginPos;
+
         if (randX < 0) pos.x += (-_offset + randX);
         else pos.x += (_offset + randX);
         if (randZ < 0) pos.z += (-_offset + randZ);
@@ -177,8 +156,8 @@ public class DiceManager : BehaviourBase
         if (!_isAddable) return;
         Poolable newDice = GameManager.Instance.Pool.Pop(_dicePrefab, gameObject.transform);
         newDice.transform.position = pos;
-        if (!isMerge) ShowAddParticle(pos, gameObject.transform);
-        else ShowMergeParticle(pos, gameObject.transform);
+        if (!isMerge) _diceParticle.ShowAddParticle(pos, gameObject.transform);
+        else _diceParticle.ShowMergeParticle(pos, gameObject.transform);
         Dice d = newDice.GetComponent<Dice>();
         d.Grade = grade;
         d.Init(_diceMat[(int)grade - 1]);
@@ -187,24 +166,6 @@ public class DiceManager : BehaviourBase
         if (_dice.Count == _maxDiceCount) _isAddable = false;
         _isMergeable = TryGetMergeableGrade(out _mergeableGrade);
         GameManager.Instance.UI.Check_Mergeable();
-    }
-
-    public void ShowAddParticle(Vector3 pos, Transform parent = null)
-    {
-        ShowParticle(_addParticle, pos, parent);
-    }
-
-    public void ShowMergeParticle(Vector3 pos, Transform parent = null)
-    {
-        ShowParticle(_mergeParticle, pos, parent);
-    }
-
-    void ShowParticle(GameObject particle, Vector3 pos, Transform parent = null)
-    {
-        Poolable pool = GameManager.Instance.Pool.Pop(particle, parent);
-        pool.transform.position = pos;
-        pool.GetComponent<ParticleSystem>().Play();
-        pool.Distroy_Pool(3);
     }
 
     public void RemoveDice(Dice dice)
@@ -244,7 +205,7 @@ public class DiceManager : BehaviourBase
         RemoveDice(dice[1]);
         if (_isRoll) _rollCnt -= 2;
         AddDice(mergePos, Quaternion.identity, (DiceGrade)(_mergeableGrade + 1));
-        ShowMergeParticle(mergePos, gameObject.transform);
+        _diceParticle.ShowMergeParticle(mergePos, gameObject.transform);
         //effect
     }
 
@@ -289,78 +250,6 @@ public class DiceManager : BehaviourBase
         Time.timeScale = 1;
     }
 
-    DiceCombine CheckScore(out int highNum)
-    {
-        highNum = 0;
-        if (_diceNumList.Count < 2) return DiceCombine.None;
-        _diceNumList.Sort();
-        _diceNumList.Reverse();
-        if (IsPenta(out highNum)) return DiceCombine.Penta;
-        else if (IsFourKind(out highNum)) return DiceCombine.FourOfKind;
-        else if (IsStraight(out highNum)) return DiceCombine.Straight;
-        else if (IsTriple(out highNum)) return DiceCombine.Triple;
-        else if (IsDouble(out highNum)) return DiceCombine.Double;
-
-        return DiceCombine.None;
-    }
-
-    bool IsStraight(out int highNum)
-    {
-        highNum = 0;
-        if (_diceNumList.Count < 5) return false;
-        if (StraightKind(1, 5)) 
-        {
-            highNum = 5;
-            return true;
-        }
-        highNum = 6;
-        return StraightKind(2, 6);
-    }
-
-    bool StraightKind(int start, int end)
-    {
-        for (int i = 1; i <= 5; i++)
-        {
-            if (!_diceNumDictionary.ContainsKey(i)) return false;
-        }
-        return true;
-    }
-    bool IsPenta(out int highNum)
-    {
-        return FindCombine(out highNum, 5);
-    }
-
-    bool IsFourKind(out int highNum)
-    {
-        return FindCombine(out highNum, 4);
-    }
-
-    bool IsTriple(out int highNum)
-    {
-        return FindCombine(out highNum, 3);
-    }
-
-    bool IsDouble(out int highNum)
-    {
-        return FindCombine(out highNum, 2);
-    }
-
-    bool FindCombine(out int highNum, int cnt)
-    {
-        highNum = 0;
-        if (_diceNumList.Count < cnt) return false;
-        for (int i = 0; i < _diceNumList.Count; i++)
-        {
-            int idx = _diceNumList[i];
-            var num = _diceNumDictionary[idx];
-            if (num != cnt) continue;
-            highNum = idx;
-            return true;
-        }
-        highNum = 0;
-        return false;
-    }
-
     public void DoSetNumber(int num, Dice dice)
     {
         _diceNumList.Add(num);
@@ -375,72 +264,10 @@ public class DiceManager : BehaviourBase
             _isRoll = false;
             testPrint();
             int highNum;
-            DiceCombine dc = CheckScore(out highNum);
+            Scoring.DiceScore dc = _scoring.CheckScore(_diceNumList, _diceNumDictionary, out highNum); //CheckScore(out highNum);
             Debug.Log(dc);
-            ShowCombineParticle(dc, highNum);
+            _diceParticle.ShowCombineParticle(dc, highNum, _dice, _rollCnt);
         }
-    }
-
-    void ShowCombineParticle(DiceCombine dc, int highNum)
-    {
-        switch(dc)
-        {
-            case DiceCombine.Double:
-                _doubleParticle.Play();
-                break;
-            case DiceCombine.Triple:
-                _tripleParticle.Play();
-                break;
-            case DiceCombine.FourOfKind:
-                _fourkindParticle.Play();
-                break;
-            case DiceCombine.Straight:
-                _straightParticle.Play();
-                break;
-            case DiceCombine.Penta:
-                _pentaParticle.Play();
-                break;
-        }
-        if (highNum <= 0) return;
-        if (dc != DiceCombine.Straight)
-        {
-            for (int i = 0; i < _rollCnt; i++)
-            {
-                if (_dice[i].CurrentNum != highNum) continue;
-                StartCoroutine(ShowGlowDiceCo(_dice[i]));
-            }
-        }
-        else
-        {
-            for (int i = highNum; i >= highNum - 4; i--)
-            {
-                var dice = _dice.Find(d => d.CurrentNum == i);
-                StartCoroutine(ShowGlowDiceCo(dice));
-            }
-        }
-    }
-
-    IEnumerator ShowGlowDiceCo(Dice dice)
-    {
-        float time = 0.0f;
-        int matIdx = (int)dice.Grade - 1;
-        if (matIdx < 0) throw new Exception("Grade is none");
-        dice.MeshRender.material = _diceHighlightMat[matIdx];
-        ShowHightlightParticle(dice.transform.position);
-        while(time < 0.5f)
-        {
-            yield return null;
-            time += Time.deltaTime;
-        }
-        dice.MeshRender.material = _diceMat[matIdx];
-    }
-
-    void ShowHightlightParticle(Vector3 pos)
-    {
-        Poolable pool = GameManager.Instance.Pool.Pop(_hightlightParticle, gameObject.transform);
-        pool.transform.position = pos;
-        pool.GetComponent<ParticleSystem>().Play();
-        pool.Distroy_Pool(1);
     }
 
     void ShowMoneyText(int num, Dice dice)

@@ -6,6 +6,7 @@ using UnityEngine;
 public class Dice : MonoBehaviour
 {
     [SerializeField] float _velocityFactor = 0.01f;
+    [SerializeField] float _heightOffset = 1;
     Rigidbody _rb = null;
     DiceNumber[] numbers = null;
     int _currentNumber = 0;
@@ -25,6 +26,9 @@ public class Dice : MonoBehaviour
         add => _doSetNumber += value;
         remove => _doSetNumber -= value;
     }
+
+    readonly float _velocityOffset = 0.55f;
+    readonly int _diceSide = 6;
     // Start is called before the first frame update
     void Start()
     {
@@ -39,7 +43,7 @@ public class Dice : MonoBehaviour
     {
         if (!_isRolling) return;
         //Debug.Log(_initVelY);
-        if ((_rb.velocity.y  < 0 && _rb.position.y <= 0.55f) || _rb.IsSleeping())
+        if ((_rb.velocity.y  < 0 && _rb.position.y <= _velocityOffset) || _rb.IsSleeping())
         {
             var num = GetTopNumber();
             _currentNumber = num;
@@ -68,7 +72,7 @@ public class Dice : MonoBehaviour
     {
         float minDot = float.MaxValue;
         int num = 0;
-        for (int i = 0; i < 6; i++)
+        for (int i = 0; i < _diceSide; i++)
         {
             Vector3 faceNormal = transform.TransformDirection(GetFaceNormal(i));
             float dot = Vector3.Dot(Vector3.down, faceNormal);
@@ -97,6 +101,7 @@ public class Dice : MonoBehaviour
     {
         if (_rb == null) return;
         _isRolling = true;
+        if (_rb.position.y > _heightOffset) return;
         //_rb.AddForce(UnityEngine.Random.onUnitSphere * 3.0f, ForceMode.Impulse);
         _rb.AddTorque(rollInfo._randomTorque, ForceMode.Impulse);
         _rb.AddExplosionForce(rollInfo._randomForce, rollInfo._pos, rollInfo._explosionRadius, rollInfo._upForce);
