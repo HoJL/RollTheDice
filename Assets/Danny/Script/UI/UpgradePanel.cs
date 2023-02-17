@@ -48,17 +48,21 @@ public class UpgradePanel : BehaviourBase
         UpdatePriceText();
         Check_Mergeable();
         Check_Addable();
+        BuyCheck_UpgradeButton();
     }
     void OnPressMergeDiceButton()
     {
         GameManager.Instance.Data.BuyMerge();
         UpdatePriceText();
         Check_Mergeable();
+        Check_Addable();
+        BuyCheck_UpgradeButton();
     }
     void OnPressIncomeButton()
     {
         GameManager.Instance.Data.BuyIncome();
         UpdatePriceText();
+        BuyCheck_UpgradeButton();
     }
 
     public void UpdateMoneyText()
@@ -76,6 +80,8 @@ public class UpgradePanel : BehaviourBase
         _textMergeDice_Price.text = $"$ {mergePrice}";
         string incomePrice = Utils.ToCurrencyString(GameManager.Instance.Data.IncomePrice);
         _textIncome_Price.text = $"$ {incomePrice}";
+
+        BuyCheck_UpgradeButton();
     }
 
     public void Check_Mergeable()
@@ -102,19 +108,22 @@ public class UpgradePanel : BehaviourBase
     void BuyCheck_UpgradeButton()
     {
         if (GameManager.Instance.Data.Money < GameManager.Instance.Data.AddDicePrice)
-            _btnAddDice.image.color = Color.gray;
+            _btnAddDice.interactable = false;
         else
-            _btnAddDice.image.color = Color.white;
+        {
+            bool addable = GameManager.Instance.DiceManager.IsAddable;
+            _btnAddDice.interactable = addable;
+        }
 
         if (GameManager.Instance.Data.Money < GameManager.Instance.Data.MergeDicePrice)
-            _btnMergeDice.image.color = Color.gray;
+            _btnMergeDice.interactable = false;
         else
-            _btnMergeDice.image.color = Color.white;
+            _btnMergeDice.interactable = true;
 
         if (GameManager.Instance.Data.Money < GameManager.Instance.Data.IncomePrice)
-            _btnIncome.image.color = Color.gray;
+            _btnIncome.interactable = false;
         else
-            _btnIncome.image.color = Color.white;
+            _btnIncome.interactable = true;
     }
 
 

@@ -11,12 +11,13 @@ public class MoneyExpolsionManager : MonoBehaviour
     [SerializeField] int _count;
     [SerializeField] float _radius;
 
-    Vector3 _localScale = new Vector3(1, 1, 1);
+    float screenXmin = 150.0f;
+    float screenXmax = 650.0f;
+    float screenYmin = 450.0f;
+    float screenYmax = 950.0f;
+    float posRange = 20.0f;
 
-    void Start()
-    {
-
-    }
+    Vector3 _localScale = Vector3.one;
 
     void Update()
     {
@@ -24,23 +25,22 @@ public class MoneyExpolsionManager : MonoBehaviour
         {
             Show_Expolsion();
         }
-
     }
 
-    void Show_Expolsion()
+    public void Show_Expolsion()
     {
 
-        Vector3 pos = new Vector3(Random.Range(200.0f, 520.0f), Random.Range(400.0f, 900.0f), 0);
+        Vector3 pos = new Vector3(Random.Range(screenXmin, screenYmin), Random.Range(screenYmin, screenYmax), 0);
         for (int i = 0; i < _count; i++)
         {
             var rad = Mathf.Deg2Rad * i * (360 / _count);
             var x = _radius * Mathf.Sin(rad);
             var y = _radius * Mathf.Cos(rad);
 
-            Vector3 startDes = pos + new Vector3(x + Random.Range(-20.0f, +20.0f), y + Random.Range(-20.0f, +20.0f), 0);
+            Vector3 startDes = pos + new Vector3(x + Random.Range(-posRange, posRange), y + Random.Range(-posRange, posRange), 0);
 
             Poolable go = GameManager.Instance.Pool.Pop(_moneyIcon);
-            //go.transform.localScale = _localScale;
+            go.transform.localScale = _localScale;
             go.transform.SetParent(_myCanvas.transform);
             go.transform.position = pos;
 
@@ -49,7 +49,6 @@ public class MoneyExpolsionManager : MonoBehaviour
                 return;
 
             mi.Init(startDes, _destPos.transform.position);
-
         }
 
 

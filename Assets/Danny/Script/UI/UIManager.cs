@@ -7,6 +7,7 @@ public class UIManager : BehaviourBase
 
     [SerializeField] Canvas _canvas;
     [SerializeField] UpgradePanel _upgradePanel;
+    [SerializeField] MoneyExpolsionManager _expManager;
 
 
     public void Init()
@@ -31,6 +32,7 @@ public class UIManager : BehaviourBase
 
         _canvas = this.GetComponent<Canvas>();
         _upgradePanel = this.GetComponentInChildren<UpgradePanel>();
+        _expManager = this.GetComponentInChildren<MoneyExpolsionManager>();
     }
 #endif // UNITY_EDITOR
 }

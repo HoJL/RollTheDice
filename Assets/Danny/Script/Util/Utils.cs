@@ -5,7 +5,7 @@ using static Define;
 
 public class Utils : MonoBehaviour
 {
-
+    static string[] CurrencyUnits = new string[] { "", "k", "m", "b", "t" };
 
     /// <summary>
     /// double 형 데이터를 클리커 게임의 화폐 단위로 표현
@@ -15,7 +15,6 @@ public class Utils : MonoBehaviour
 
     public static string ToCurrencyString(double number)
     {
-        string[] CurrencyUnits = new string[] { "", "k", "m", "b", "t" };
 
         string zero = "0";
 

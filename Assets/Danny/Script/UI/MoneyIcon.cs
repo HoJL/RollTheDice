@@ -6,6 +6,7 @@ public class MoneyIcon : MonoBehaviour
 {
     Vector3 _startDes;
     Vector3 _endDes;
+    Vector3 _endScale = new Vector3(0.7f, 0.7f, 1);
 
     [SerializeField] float _startSpeed;
     [SerializeField] float _endSpeed;
@@ -20,11 +21,13 @@ public class MoneyIcon : MonoBehaviour
     IEnumerator Co_MoveIconToEndDes()
     {
         float time = 0;
-        Vector3 origin = transform.position;
+        Vector3 originPos = transform.position;
+        Vector3 originSacle = transform.localScale;
         while (time <= _endSpeed)
         {
             yield return null;
-            transform.position = Vector3.Lerp(origin, _endDes, time / _endSpeed);
+            transform.position = Vector3.Lerp(originPos, _endDes, time / _endSpeed);
+            transform.localScale = Vector3.Lerp(originSacle, _endScale, time / _endSpeed);
             time += Time.deltaTime;
         }
 
