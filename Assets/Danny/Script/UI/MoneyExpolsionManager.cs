@@ -30,7 +30,7 @@ public class MoneyExpolsionManager : MonoBehaviour
     public void Show_Expolsion()
     {
 
-        Vector3 pos = new Vector3(Random.Range(screenXmin, screenYmin), Random.Range(screenYmin, screenYmax), 0);
+        Vector3 pos = new Vector3(Random.Range(screenXmin, screenXmax), Random.Range(screenYmin, screenYmax), 0);
         for (int i = 0; i < _count; i++)
         {
             var rad = Mathf.Deg2Rad * i * (360 / _count);

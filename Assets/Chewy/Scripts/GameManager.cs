@@ -4,9 +4,6 @@ using UnityEngine;
 
 public class GameManager : Singleton<GameManager>
 {
-    //public static GameManager s_instance = null;
-    //public static GameManager Instance { get { return s_instance; } }
-
     [SerializeField] DiceManager _diceManager;
     [SerializeField] UIManager _uiManager;//데니
     [SerializeField] DataManager _dataManager;

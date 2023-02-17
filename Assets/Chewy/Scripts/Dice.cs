@@ -7,7 +7,6 @@ public class Dice : MonoBehaviour
 {
     [SerializeField] float _heightOffset = 1;
     Rigidbody _rb = null;
-    DiceNumber[] numbers = null;
     int _currentNumber = 0;
     public int CurrentNum {get => _currentNumber;}
     bool _isRolling = false;
@@ -30,7 +29,6 @@ public class Dice : MonoBehaviour
     void Start()
     {
         _rb = GetComponent<Rigidbody>();
-        numbers = GetComponentsInChildren<DiceNumber>();
         poolable = GetComponent<Poolable>();
         _meshRenderer = GetComponent<MeshRenderer>();
     }
@@ -48,21 +46,6 @@ public class Dice : MonoBehaviour
             _doSetNumber?.Invoke(num, this);
             _isRolling = false;
         }
-        //if (!_rb.IsSleeping()) return;
-        //if (_rb.velocity.y > - 5.0001f) return;
-        //if (_rb.velocity.sqrMagnitude > 0.0001f) return;
-        //Debug.Log(_rb.velocity.magnitude);
-       
-        /*
-        for (int i = 0; i < numbers.Length; i++)
-        {
-            if (!numbers[i].OnGround) continue;
-            _isRolling = false;
-            _currentNumber = _numberOffset - numbers[i].Number;
-            _doSetNumber(_currentNumber);
-            break;
-        }
-        */
     }
 
     int GetTopNumber()

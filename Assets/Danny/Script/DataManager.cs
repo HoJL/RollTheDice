@@ -20,7 +20,6 @@ public class DataManager : MonoBehaviour
 
     float _Upgrade_Defult_Price = 150f;
     float _Upgrade_Defult_Price_Add = 5f;
-    float _Upgrade_Price_Magnification = 1.5f;
 
     int _priceLvCheckCount = 10;
     int _priceLvCheckCount_add = 0;
