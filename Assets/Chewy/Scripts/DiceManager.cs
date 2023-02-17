@@ -50,7 +50,6 @@ public class DiceManager : BehaviourBase
     }
 
     [SerializeField] List<Dice> _dice = new List<Dice>();
-    [SerializeField] int _diceMax = 7;
     [SerializeField] float _explosionRadius = 1.0f;
     [SerializeField] MinMaxSt _explosionForce = new MinMaxSt(250, 320);
     [SerializeField] MinMaxSt _minMaxRandPos = new MinMaxSt(-1.0f, 1.0f);
@@ -82,7 +81,7 @@ public class DiceManager : BehaviourBase
     bool _isRoll = false;
     float _randomPosXFactor;
     int _rollCnt = 0;
-    int _currentDiceCount = 0;
+
     bool _isAddable = true;
     public bool IsAddable {get => _isAddable;}
     public bool IsMergeable { get => _isMergeable; }
@@ -270,7 +269,7 @@ public class DiceManager : BehaviourBase
     public void DoSetNumber(int num, Dice dice)
     {
         _diceNumList.Add(num);
-        ShowMoneyText(num, dice);
+        _diceParticle.ShowMoneyText(num ,dice);// ShowMoneyText(num, dice);
         if (!_diceNumDictionary.ContainsKey(num))
         {
             _diceNumDictionary[num] = 0;
@@ -285,22 +284,6 @@ public class DiceManager : BehaviourBase
             Debug.Log(dc);
             _diceParticle.ShowCombineParticle(dc, highNum, _dice, _rollCnt);
         }
-    }
-
-    void ShowMoneyText(int num, Dice dice)
-    {
-        Poolable pool = GameManager.Instance.Pool.Pop(_moneyText, gameObject.transform);
-        var mt = pool.GetComponent<ShowUpMoneyText>();
-        var moneyPos = dice.transform.position;
-        moneyPos.x += _moneyTextOffset.x;
-        moneyPos.y += _moneyTextOffset.y;
-        moneyPos.z += _moneyTextOffset.z;
-        mt.transform.position = moneyPos;
-        //(주사위 숫자 * 3^(등급-1)) * (1 + 0.1 * 인컴레벨)
-        var money = num * Mathf.Pow(3, ((int)dice.Grade - 1)) * (1 + GameManager.Instance.Data.IncomeLv);
-        GameManager.Instance.Data.Money += money;
-        mt.SetText(money);
-        pool.Distroy_Pool(1.5f);
     }
 
     public void testPrint()

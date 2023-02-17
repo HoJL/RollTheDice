@@ -5,21 +5,18 @@ using UnityEngine;
 
 public class Dice : MonoBehaviour
 {
-    [SerializeField] float _velocityFactor = 0.01f;
     [SerializeField] float _heightOffset = 1;
     Rigidbody _rb = null;
     DiceNumber[] numbers = null;
     int _currentNumber = 0;
     public int CurrentNum {get => _currentNumber;}
     bool _isRolling = false;
-    readonly int _numberOffset = 7;
     DiceManager.DiceGrade _grade = default;
     public DiceManager.DiceGrade Grade{get => _grade; set => _grade = value;}
     Poolable poolable;
     MeshRenderer _meshRenderer;
     public MeshRenderer MeshRender {get => _meshRenderer;}
     SkinnedMeshRenderer [] _skinnedRenderer;
-    float _initVelY = 0;
     Action<int, Dice> _doSetNumber;
     public event Action<int, Dice> DoSetNumber
     {

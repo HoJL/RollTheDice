@@ -10,12 +10,12 @@ public class Scoring : MonoBehaviour
         Double,
         Triple,
         Straight,
-        FourOfKind,
+        Quadruple,
         Penta,
         Hexa,
         Hepta,
         Octa,
-        Novem,
+        Nona,
         Deca,
         Undeca,
         DoDeca,
@@ -31,8 +31,11 @@ public class Scoring : MonoBehaviour
         if (_diceNumList.Count < 2) return DiceScore.None;
         _diceNumList.Sort();
         _diceNumList.Reverse();
-        if (IsPenta(out highNum)) return DiceScore.Penta;
-        else if (IsFourKind(out highNum)) return DiceScore.FourOfKind;
+        if (IsOcta(out highNum)) return DiceScore.Octa;
+        else if (IsHepta(out highNum)) return DiceScore.Hepta;
+        else if (IsHexa(out highNum)) return DiceScore.Hexa;
+        else if (IsPenta(out highNum)) return DiceScore.Penta;
+        else if (IsFourKind(out highNum)) return DiceScore.Quadruple;
         else if (IsStraight(out highNum)) return DiceScore.Straight;
         else if (IsTriple(out highNum)) return DiceScore.Triple;
         else if (IsDouble(out highNum)) return DiceScore.Double;
@@ -61,9 +64,33 @@ public class Scoring : MonoBehaviour
         }
         return true;
     }
+    bool IsDoDeca(out int highNum)
+    {
+        return FindCombine(out highNum, 12);
+    }
+    bool IsUnDeca(out int highNum)
+    {
+        return FindCombine(out highNum, 11);
+    }
+    bool IsDeca(out int highNum)
+    {
+        return FindCombine(out highNum, 10);
+    }
+    bool IsNona(out int highNum)
+    {
+        return FindCombine(out highNum, 9);
+    }
+    bool IsOcta(out int highNum)
+    {
+        return FindCombine(out highNum, 8);
+    }
+    bool IsHepta(out int highNum)
+    {
+        return FindCombine(out highNum, 7);
+    }
     bool IsHexa(out int highNum)
     {
-        return FindCombine(out highNum, 5);
+        return FindCombine(out highNum, 6);
     }
     bool IsPenta(out int highNum)
     {
