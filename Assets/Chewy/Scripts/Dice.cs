@@ -12,10 +12,8 @@ public class Dice : MonoBehaviour
     bool _isRolling = false;
     DiceManager.DiceGrade _grade = default;
     public DiceManager.DiceGrade Grade{get => _grade; set => _grade = value;}
-    Poolable poolable;
     MeshRenderer _meshRenderer;
     public MeshRenderer MeshRender {get => _meshRenderer;}
-    SkinnedMeshRenderer [] _skinnedRenderer;
     Action<int, Dice> _doSetNumber;
     public event Action<int, Dice> DoSetNumber
     {
@@ -29,7 +27,6 @@ public class Dice : MonoBehaviour
     void Start()
     {
         _rb = GetComponent<Rigidbody>();
-        poolable = GetComponent<Poolable>();
         _meshRenderer = GetComponent<MeshRenderer>();
     }
 
@@ -94,13 +91,5 @@ public class Dice : MonoBehaviour
         _meshRenderer = GetComponent<MeshRenderer>();
         if (_meshRenderer != null)
             _meshRenderer.material = mat;
-
-        _skinnedRenderer = GetComponentsInChildren<SkinnedMeshRenderer>();
-        if (_skinnedRenderer == null) return;
-        for (int i = 0; i < _skinnedRenderer.Length; i++)
-        {
-            _skinnedRenderer[i].material = mat;
-        }
-
     }
 }
